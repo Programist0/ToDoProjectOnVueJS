@@ -5,6 +5,7 @@
 				color: inputValue.length < 10 ? 'darkred' : 'darkblue',
 				fontSize: inputValue.length > 10 ? '29px' : '28px'
 			}">{{ title }}</h1>
+      <Progress :progression="Progress" :length="notes.length"></Progress>
       <div class="form-control">
         <input type="time" v-model="time">
         <div class="special_info">{{info}}</div>
@@ -32,7 +33,7 @@
         </li>
         <li :class="{'list-item': true, 'list-item-column': column}"
             v-for="(note, index) in notes"
-            :key="note"
+            :key="index"
             :style="{backgroundColor: importantNotes[index] === true < 10 ? '#ffc6c6' : '#fff6c6', fontWeight: importantNotes[index] === true < 10 ? '800' : '300'}"
         >{{note}}<strong>{{timeOfNote[index]}}</strong><button class="btn danger" @click="deleteNote(index, $event)">Delete note</button></li>
         <li class="list-counter">
@@ -45,12 +46,12 @@
 </template>
 
 <script>
-
+import Progress from "@/components/Progress.vue";
 
 export default {
   name: 'App',
   components: {
-
+    Progress
   },
   data: function () {
     return {
@@ -64,6 +65,7 @@ export default {
       important: false,
       importantNotes: [],
       time: '12:00',
+      hours: 12,
       first: false,
       column: false
     }
@@ -83,7 +85,9 @@ export default {
           this.importantNotes.push(this.important);
           this.timeOfNote.push(this.time);
         }
-        this.time = '12:00';
+        this.hours++;
+        this.hours %= 24;
+        this.time = this.hours < 10 ? '0' + this.hours + ':00': this.hours + ':00';
         this.important = false;
         this.first = false;
         this.inputValue = '';
@@ -96,6 +100,11 @@ export default {
       this.notes.splice(index, 1);
       this.importantNotes.splice(index, 1);
       this.timeOfNote.splice(index, 1);
+    }
+  },
+  computed:{
+    Progress(){
+      return this.notes.length % 10 / 10 * 100;
     }
   },
   watch:{
